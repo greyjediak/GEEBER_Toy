@@ -2,7 +2,9 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_ST7789.h>
 
+#include "graphics.h"
 #include "sprites.h"
+#include "sprite_functions.h"
 
 #include "jokes.h"
 
@@ -26,7 +28,6 @@ Adafruit_ST7789 disp = Adafruit_ST7789(
 
 
 
-void drawSpriteTransparent(int x, int y, const uint16_t *sprite, int w, int h, uint16_t transparent);
 void tellRandomJoke();
 struct DebouncedButton { int pin; bool lastStableState; bool lastReading; unsigned long lastChangeTime;};
 bool buttonPressed(DebouncedButton &btn);
@@ -61,21 +62,15 @@ void setup() {
   Serial.println("Screen should be white");
 }
 
+bool played = false;
 void loop() {
 
   // Button + blink test
-  if (buttonPressed(leftBtn))
-  {
-    Serial.println("Left Pressed");
-    disp.fillScreen(ST77XX_WHITE);
-    drawSpriteTransparent(104,104,boy_front_idle,BOY_W,BOY_H,TRANSPARENT);
+  if (!played) {
+    sprite_walk_right(disp, 50, 104, 200, 104, 2);
+    played = true;
   }
-  if (buttonPressed(rightBtn))
-  {
-    Serial.println("right Pressed");
-    disp.fillScreen(ST77XX_WHITE);
-    drawSpriteTransparent(104, 50, boy_front_eyes_closed,BOY_W,BOY_H,TRANSPARENT);
-  }
+  
 
 }
 
@@ -102,28 +97,6 @@ bool buttonPressed(DebouncedButton &btn)
     }
   }
   return false;
-}
-
-void drawSpriteTransparent(
-    int x,
-    int y,
-    const uint16_t *sprite,
-    int w,
-    int h,
-    uint16_t transparent)
-{
-    for(int py = 0; py < h; py++)
-    {
-        for(int px = 0; px < w; px++)
-        {
-            uint16_t color = sprite[py * w + px];
-
-            if(color == transparent)
-                continue;
-
-            disp.drawPixel(x + px, y + py, color);
-        }
-    }
 }
 
 void tellRandomJoke() // Tell random joke, TODO, connect to accelerometer

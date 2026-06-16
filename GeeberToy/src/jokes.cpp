@@ -20,9 +20,11 @@ const Joke jokes [] = {
     {
         "How does a computer get drunk?",
         "It takes screen shots."
+    },
+    {
+        "She was sending me mixed signals.",
+        "So I did a Fourier analysis."
     }
-
-
     
 };
 
@@ -36,6 +38,8 @@ const char* wisdom [] = {
     "There are two types of people in the world. Those who understand binary, and those who don't.",
     "Bad electrical engineers become good electrical conductors",
     "It's hard to explain puns to kleptomaniacs. They always take things literally.",
-    "There are two types of people in the world. 1. Those who can extrapolate from incomplete data."
+    "There are two types of people in the world. 1. Those who can extrapolate from incomplete data.",
+    "There's a fine line between a numerator and a denominator. Only a fraction of people will find this funny."
+    "Just abuse KCL",
     
 };

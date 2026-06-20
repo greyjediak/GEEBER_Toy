@@ -1,11 +1,7 @@
 #include <Arduino.h>
-#include <Adafruit_GFX.h>
-#include <Adafruit_ST7789.h>
+#include <TFT_eSPI.h>
 
-#include "graphics.h"
 #include "sprites.h"
-#include "sprite_functions.h"
-
 #include "jokes.h"
 
 /* Display */
@@ -18,15 +14,23 @@
 
 #define TRANSPARENT 0xF81F
 
-Adafruit_ST7789 disp = Adafruit_ST7789(
-  DISP_CS,
-  DISP_DC,
-  DISP_SDA,
-  DISP_SCL,
-  DISP_RES
-);
+#define SCREEN_W 240
+#define SCREEN_H 240
 
+#define FRAME_W 64
+#define FRAME_H 64
+#define IDLE_FRAMES 32
+#define SHEET_W 2048
 
+TFT_eSPI disp = TFT_eSPI();
+TFT_eSprite screen = TFT_eSprite(&disp);
+
+int playerX = 88;
+int playerY =120;
+
+int idleFrame = 0;
+unsigned long lastAnimTime = 0;
+const int idleFrameDelay = 90; 
 
 void tellRandomJoke();
 struct DebouncedButton { int pin; bool lastStableState; bool lastReading; unsigned long lastChangeTime;};
@@ -48,6 +52,26 @@ DebouncedButton rightBtn =
     HIGH,
     0
 };
+
+void drawFrameFromSheet(
+  TFT_eSprite &canvas,
+  const uint16_t *sheet,
+  int frameIndex,
+  int x,
+  int y
+) {
+  int sourceX = frameIndex * FRAME_W;
+
+  for (int row = 0; row < FRAME_H; row++)
+  {
+    const uint16_t *rowPtr = &sheet[row * SHEET_W + sourceX];
+
+    canvas.pushImage(x, y+row, FRAME_W, 1, rowPtr); // TODO, implement version supporting background color
+    
+  }
+}
+
+
 void setup() {
   Serial.begin(115200);
   delay(1000);
@@ -56,22 +80,30 @@ void setup() {
   pinMode(D6, INPUT_PULLUP);
 
   Serial.println("Init display");
-  disp.init(240, 240);
+  disp.init();
   disp.setRotation(0);
-  disp.fillScreen(ST77XX_WHITE);
+  disp.fillScreen(TFT_BLACK);
+  screen.setColorDepth(16);
+  screen.createSprite(SCREEN_W, SCREEN_H);
+
   Serial.println("Screen should be white");
 }
 
 bool played = false;
 void loop() {
 
-  // Button + blink test
-  if (!played) {
-    sprite_walk_right(disp, 50, 104, 200, 104, 2);
-    played = true;
-  }
-  
+  unsigned long now  = millis();
 
+  if (now - lastAnimTime >= idleFrameDelay)
+  {
+    idleFrame = (idleFrame + 1) % IDLE_FRAMES;
+    lastAnimTime = now;
+  }
+
+  screen.fillSprite(TFT_BLACK);
+
+  drawFrameFromSheet(screen, boy_side_idle, idleFrame, playerX, playerY);
+  screen.pushSprite(0, 0);
 }
 
 bool buttonPressed(DebouncedButton &btn)

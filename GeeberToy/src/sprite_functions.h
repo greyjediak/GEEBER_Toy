@@ -1,8 +1,6 @@
 #pragma once
 #include <Arduino.h>
 
-#include <Adafruit_ST7789.h>
-
 void eraseSpriteArea(
   Adafruit_ST7789 &disp,
   int x,

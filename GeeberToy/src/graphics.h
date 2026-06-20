@@ -2,6 +2,7 @@
 
 #include <Arduino.h>
 #include <Adafruit_ST7789.h>
+#include <TFT_eSPI.h>
 
 #define TRANSPARENT 0xF81F
 

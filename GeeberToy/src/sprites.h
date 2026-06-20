@@ -2,7 +2,7 @@
 
 #include <Arduino.h>
 
-extern const uint16_t boy_front_idle[];
+extern const uint16_t boy_side_idle[];
 extern const uint16_t boy_front_eyes_closed[];
 extern const uint16_t boy_walk_right_frame1[];
 extern const uint16_t boy_walk_right_frame2[];

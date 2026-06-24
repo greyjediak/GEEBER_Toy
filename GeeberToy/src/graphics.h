@@ -1,17 +1,15 @@
 #pragma once
-
 #include <Arduino.h>
-#include <Adafruit_ST7789.h>
 #include <TFT_eSPI.h>
 
-#define TRANSPARENT 0xF81F
+constexpr int SCREEN_W = 240;
+constexpr int SCREEN_H = 240;
+constexpr uint16_t TRANSPARENT = 0xF81F;
 
-void drawSpriteTransparent(
-  Adafruit_ST7789 &disp,
-  int x,
-  int y,
-  const uint16_t *sprite,
-  int w,
-  int h,
-  uint16_t transparent
-);
+extern TFT_eSPI tft;
+extern TFT_eSprite screen;
+extern TFT_eSprite frameSprite;
+
+void graphicsInit();
+void beginFrame(uint16_t bgColor);
+void endFrame();

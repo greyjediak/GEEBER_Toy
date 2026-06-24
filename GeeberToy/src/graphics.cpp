@@ -1,39 +1,26 @@
 #include "graphics.h"
 
-#define TRANSPARENT 0xF81F
+TFT_eSPI tft = TFT_eSPI();
+TFT_eSprite screen = TFT_eSprite(&tft);
+TFT_eSprite frameSprite = TFT_eSprite(&tft);
 
-void drawSpriteTransparent(
-  Adafruit_ST7789 &disp,
-  int x,
-  int y,
-  const uint16_t *sprite,
-  int w,
-  int h,
-  uint16_t transparent)
-{
-  for (int py = 0; py < h; py++) {
-    int px = 0;
+void graphicsInit() {
+  tft.init();
+  tft.setRotation(0);
+  tft.fillScreen(TFT_WHITE);
 
-    while (px < w) {
-      uint16_t color = sprite[py * w + px];
+  screen.setColorDepth(16);
+  screen.createSprite(SCREEN_W, SCREEN_H);
 
-      if (color == transparent) {
-        px++;
-        continue;
-      }
+  frameSprite.setColorDepth(16);
+  frameSprite.createSprite(64, 64);
+  frameSprite.setSwapBytes(true);
+}
 
-      int runStart = px;
-      int runLength = 1;
+void beginFrame(uint16_t bgColor) {
+  screen.fillSprite(bgColor);
+}
 
-      while (
-        px + runLength < w &&
-        sprite[py * w + px + runLength] == color
-      ) {
-        runLength++;
-      }
-
-      disp.fillRect(x + runStart, y + py, runLength, 1, color);
-      px += runLength;
-    }
-  }
+void endFrame() {
+  screen.pushSprite(0, 0);
 }

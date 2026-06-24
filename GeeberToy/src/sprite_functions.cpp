@@ -1,33 +1,49 @@
 #include "sprite_functions.h"
+#include <stdio.h>
+using namespace std;
+#include <TFT_eSPI.h>
 #include "sprites.h"
-#include "graphics.h"
+#include  "jokes.h"
 
-void eraseSpriteArea(
-  Adafruit_ST7789 &disp,
-  int x,
-  int y,
-  int w,
-  int h,
-  int scale,
-  uint16_t bgColor
-) {
-  disp.fillRect(x, y, w * scale, h * scale, bgColor);
-} 
+#define JUMP_FRAMES 4
+#define JUMP_SHEET_W 256 // 64*4
 
-void sprite_walk_right(Adafruit_ST7789 &disp, int xstart, int ystart, int xEnd, int yEnd, int speed)
+void loadFrameFromSheet(TFT_eSprite &frame, const SpriteSheet &sheet, int frameIndex)
 {
-    const uint16_t *frames[] = {
-        boy_walk_right_frame1,
-        boy_walk_right_frame2,
-        boy_walk_right_frame3,
-        boy_walk_right_frame4,
-    };
-    int frame = 0;
-    for (int i = xstart; i < xEnd; i +=speed)
+    int sourceX = frameIndex * sheet.frameW;
+
+    for (int row = 0; row < sheet.frameH; row++)
     {
-        
-        drawSpriteTransparent(disp, i, ystart, frames[frame], BOY_W, BOY_H, TRANSPARENT);
-        frame=(frame+1)%4;
-        eraseSpriteArea(disp, i, ystart, BOY_W, BOY_H/2, 2, ST77XX_WHITE);
+        const uint16_t *rowPtr = &sheet.data[row * sheet.sheetW + sourceX];
+        frame.pushImage(0, row, sheet.frameW, 1, rowPtr);
     }
+}
+
+void drawSpriteFrame(TFT_eSprite &screen, TFT_eSprite &frameSprite, const SpriteSheet &sheet, int frameIndex, int x, int y, uint16_t transparent)
+{
+    frameSprite.fillSprite(transparent); // fill blank with the transparent color
+    loadFrameFromSheet(frameSprite, sheet, frameIndex); // load our character sprite
+    frameSprite.pushToSprite(&screen, x, y, transparent); 
+
+}
+
+void sprite_idle(TFT_eSprite, int xPos, int yPos) {
+
+};
+
+void sprite_jump(TFT_eSprite sprite, int start, int end, int jump_height, int jump_speed) 
+{
+
+}
+void sprite_walk_left(TFT_eSprite sprite, int start, int end, int speed) 
+{
+
+};
+void sprite_walk_right(TFT_eSprite sprite, int start, int end, int speed) 
+{
+
+};
+void sprite_tell_joke(TFT_eSprite sprite, string joke)
+{
+
 };

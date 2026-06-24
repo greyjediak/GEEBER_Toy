@@ -1,42 +1,69 @@
 #include <Arduino.h>
-#include <TFT_eSPI.h>
-
+#include "graphics.h"
+#include "sprite_functions.h"
 #include "sprites.h"
-#include "jokes.h"
 
-/* Display */
-#define DISP_CS    D0
-#define DISP_RES   D1
-#define DISP_DC    D2
+SpriteSheet boyIdle = {
+  boy_side_idle,
+  64,
+  64,
+  16,
+  1024
+};
 
-#define DISP_SDA   D10   // MOSI
-#define DISP_SCL   D8    // SCK
+SpriteSheet boyJump = {
+  boy_jump,
+  64,
+  64,
+  4,
+  256
+};
 
-#define TRANSPARENT 0xF81F
+enum AppState {
+  STATE_IDLE,
+  STATE_SPEAK,
+  STATE_GAME,
+  STATE_SLEEP
+};
 
-#define SCREEN_W 240
-#define SCREEN_H 240
+/* ================================== */
+/*        STATE FUNCTIONALITY         */
+/* ================================== */
+AppState state = STATE_IDLE;
+unsigned long stateStartTime = 0;
 
-#define FRAME_W 64
-#define FRAME_H 64
-#define IDLE_FRAMES 32
-#define SHEET_W 2048
+/* ===================================*/
+/*            JUMP PARAMS             */
+/* ===================================*/
+int PLAYER_X = 88;
+int playerY = 120;
+constexpr int GROUND_Y = 120; //ground is always here
 
-TFT_eSPI disp = TFT_eSPI();
-TFT_eSprite screen = TFT_eSprite(&disp);
+float playerY = GROUND_Y;
+float velocityY = 0;
 
-int playerX = 88;
-int playerY =120;
+constexpr float GRAVITY = 0.55;
+constexpr float JUMP_POWER = -9.5;
+
+bool onGround = true;
+/* ===================================*/
+
+/* ================================== */
+/*        JUMP FUNCTIONS              */
+/* ================================== */
+void startJump();
+void updateJumpPhysics();
+void updateIdleAnimation();
+int getJumpFrame();
+/* =================================== */
 
 int idleFrame = 0;
-unsigned long lastAnimTime = 0;
-const int idleFrameDelay = 90; 
+unsigned long lastIdleAnimTime = 0;
+constexpr unsigned long IDLE_FRAME_DELAY = 90;
 
-void tellRandomJoke();
+// Button Functions
 struct DebouncedButton { int pin; bool lastStableState; bool lastReading; unsigned long lastChangeTime;};
 bool buttonPressed(DebouncedButton &btn);
-
-/* Buttons */
 DebouncedButton leftBtn =
 {
     D5,
@@ -52,58 +79,109 @@ DebouncedButton rightBtn =
     HIGH,
     0
 };
-
-void drawFrameFromSheet(
-  TFT_eSprite &canvas,
-  const uint16_t *sheet,
-  int frameIndex,
-  int x,
-  int y
-) {
-  int sourceX = frameIndex * FRAME_W;
-
-  for (int row = 0; row < FRAME_H; row++)
-  {
-    const uint16_t *rowPtr = &sheet[row * SHEET_W + sourceX];
-
-    canvas.pushImage(x, y+row, FRAME_W, 1, rowPtr); // TODO, implement version supporting background color
-    
-  }
-}
+bool lastButtonState = HIGH;
+bool stableButtonState = HIGH;
+unsigned long lastButtonChangeTime = 0;
+constexpr unsigned long DEBOUNCE_MS = 30;
 
 
 void setup() {
   Serial.begin(115200);
   delay(1000);
 
-  pinMode(D5, INPUT_PULLUP);
-  pinMode(D6, INPUT_PULLUP);
+  pinMode(D5, INPUT_PULLUP); // init left button
+  pinMode(D6, INPUT_PULLUP); // init right button
 
-  Serial.println("Init display");
-  disp.init();
-  disp.setRotation(0);
-  disp.fillScreen(TFT_BLACK);
-  screen.setColorDepth(16);
-  screen.createSprite(SCREEN_W, SCREEN_H);
+  graphicsInit();
 
-  Serial.println("Screen should be white");
+  Serial.println("BOOT OK");
 }
 
-bool played = false;
 void loop() {
 
-  unsigned long now  = millis();
+  // In the loop, once the device is switched on, we should start at the same point every time.
+  // Wake up sprite
+  // Greeting
+  // main menu with options
 
-  if (now - lastAnimTime >= idleFrameDelay)
-  {
-    idleFrame = (idleFrame + 1) % IDLE_FRAMES;
-    lastAnimTime = now;
+  if (buttonPressed(rightBtn) && game_start()) {
+    startJump();
   }
 
-  screen.fillSprite(TFT_BLACK);
+  updateJumpPhysics();
+  updateIdleAnimation();
 
-  drawFrameFromSheet(screen, boy_side_idle, idleFrame, playerX, playerY);
-  screen.pushSprite(0, 0);
+  beginFrame(TFT_WHITE);
+
+  if (onGround) {
+    drawSpriteFrame(
+      screen,
+      frameSprite,
+      boyIdle,
+      idleFrame,
+      PLAYER_X,
+      (int)playerY,
+      TRANSPARENT
+    );
+  } else {
+    drawSpriteFrame(
+      screen,
+      frameSprite,
+      boyJump,
+      getJumpFrame(),
+      PLAYER_X,
+      (int)playerY,
+      TRANSPARENT
+    );
+  }
+
+  endFrame();
+}
+
+void startJump() {
+  if (onGround) {
+    velocityY = JUMP_POWER;
+    onGround = false;
+  }
+}
+
+void updateJumpPhysics() {
+  if (!onGround) {
+    velocityY += GRAVITY;
+    playerY += velocityY;
+
+    if (playerY >= GROUND_Y) {
+      playerY = GROUND_Y;
+      velocityY = 0;
+      onGround = true;
+    }
+  }
+}
+
+void updateIdleAnimation() {
+  unsigned long now = millis();
+
+  if (now - lastIdleAnimTime >= IDLE_FRAME_DELAY) {
+    idleFrame = (idleFrame + 1) % boyIdle.frameCount;
+    lastIdleAnimTime = now;
+  }
+}
+
+int getJumpFrame() {
+  if (velocityY < -3.0) return 0;  // takeoff / rising
+  if (velocityY < 0.8)  return 1;  // apex
+  if (velocityY < 5.0)  return 2;  // falling / air
+  return 3;                        // landing
+}
+
+// This only happens when selected from main menu or startup
+bool game_start()
+{
+  if (STATE_GAME)
+  {
+    return true;
+  }
+  return false;
 }
 
 bool buttonPressed(DebouncedButton &btn)
@@ -129,12 +207,4 @@ bool buttonPressed(DebouncedButton &btn)
     }
   }
   return false;
-}
-
-void tellRandomJoke() // Tell random joke, TODO, connect to accelerometer
-{
-  int index = random(NUM_JOKES);
-  disp.println(jokes[index].setup);
-  delay (2000);
-  disp.println(jokes[index].punchline);
 }

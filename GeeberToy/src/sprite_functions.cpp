@@ -21,29 +21,7 @@ void loadFrameFromSheet(TFT_eSprite &frame, const SpriteSheet &sheet, int frameI
 
 void drawSpriteFrame(TFT_eSprite &screen, TFT_eSprite &frameSprite, const SpriteSheet &sheet, int frameIndex, int x, int y, uint16_t transparent)
 {
-    frameSprite.fillSprite(transparent); // fill blank with the transparent color
-    loadFrameFromSheet(frameSprite, sheet, frameIndex); // load our character sprite
-    frameSprite.pushToSprite(&screen, x, y, transparent); 
-
+    frameSprite.fillSprite(transparent);
+    loadFrameFromSheet(frameSprite, sheet, frameIndex);
+    frameSprite.pushToSprite(&screen, x, y, transparent);
 }
-
-void sprite_idle(TFT_eSprite, int xPos, int yPos) {
-
-};
-
-void sprite_jump(TFT_eSprite sprite, int start, int end, int jump_height, int jump_speed) 
-{
-
-}
-void sprite_walk_left(TFT_eSprite sprite, int start, int end, int speed) 
-{
-
-};
-void sprite_walk_right(TFT_eSprite sprite, int start, int end, int speed) 
-{
-
-};
-void sprite_tell_joke(TFT_eSprite sprite, string joke)
-{
-
-};

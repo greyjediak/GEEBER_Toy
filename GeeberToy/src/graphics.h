@@ -13,3 +13,20 @@ extern TFT_eSprite frameSprite;
 void graphicsInit();
 void beginFrame(uint16_t bgColor);
 void endFrame();
+
+// Text handlers
+int drawText(
+    const String &text,
+    int x,
+    int y,
+    uint16_t color = TFT_BLACK,
+    uint8_t size = 2,
+    uint16_t maxWidth = 220
+);
+void drawCenteredText(
+    const String &text,
+    int y,
+    uint16_t color = TFT_BLACK,
+    uint8_t size = 2,
+    uint16_t width = 140
+);

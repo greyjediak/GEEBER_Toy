@@ -1,3 +1,5 @@
+// Handles drawing sprites from the sheets in sprites.h
+
 #include "sprite_functions.h"
 #include <stdio.h>
 using namespace std;

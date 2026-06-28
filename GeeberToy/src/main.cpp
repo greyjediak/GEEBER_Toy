@@ -1,55 +1,23 @@
 #include <Arduino.h>
 #include "graphics.h"
-#include "sprite_functions.h"
-#include "sprites.h"
-#include "player.h"
-#include "sprite_effects.h"
 #include "idle.h"
-
-SpriteSheet boyIdle = {
-  boy_side_idle,
-  64,
-  64,
-  16,
-  1024
-};
-
-SpriteSheet boyJump = {
-  boy_jump,
-  64,
-  64,
-  4,
-  256
-};
-
-SpriteSheet boyWalk = {
-  boy_walk,
-  64,
-  64,
-  4,
-  256
-};
-
-SpriteSheet resistorSheet = {
-  ResistorPack_Sheet,
-  32,
-  32,
-  4,
-  128
-};
+#include "game.h"
+#include "sprites.h"
+#include "sprite_functions.h"
 
 enum AppState {
   STATE_STARTUP,
   STATE_MENU,
   STATE_IDLE,
   STATE_GAME,
-  STATE_SLEEP
+  STATE_SLEEP,
+  STATE_JOKE,
 };
+
+static SpriteSheet boyWalk = { boy_speak, 64, 64, 4, 256 };
 
 AppState state = STATE_STARTUP;
 int menuChoice = 0;
-
-Player player;
 
 struct DebouncedButton { int pin; bool lastStableState; bool lastReading; unsigned long lastChangeTime; };
 bool buttonPressed(DebouncedButton &btn);
@@ -70,7 +38,7 @@ void setup() {
   pinMode(D6, INPUT_PULLUP);
 
   graphicsInit();
-  playerInit(player);
+  gameInit();
 
   screen.setTextColor(TFT_BLACK, TFT_WHITE);
   screen.setTextDatum(TL_DATUM);
@@ -100,9 +68,9 @@ void loop() {
       if (rightPressed) {
         switch (menuChoice) {
           case 0: /* tell joke — not yet implemented */ break;
-          case 1: playerInit(player); state = STATE_GAME;    break;
-          case 2:                     state = STATE_SLEEP;   break;
-          case 3:                     state = STATE_STARTUP; break;
+          case 1: gameInit(); state = STATE_GAME;    break;
+          case 2:             state = STATE_SLEEP;   break;
+          case 3:             state = STATE_STARTUP; break;
         }
       }
       beginFrame(TFT_WHITE);
@@ -116,17 +84,8 @@ void loop() {
       break;
 
     case STATE_GAME:
-      if (leftPressed)  state = STATE_MENU;
-      if (rightPressed) playerStartJump(player);
-      playerUpdate(player, boyWalk);
-      beginFrame(TFT_WHITE);
-      screen.drawLine(0, 121, 240, 121, TFT_BLACK);
-      if (player.onGround) {
-        drawSpriteFrame(screen, frameSprite, boyWalk, player.idleFrame, player.x, (int)player.y, TRANSPARENT);
-      } else {
-        drawSpriteFrame(screen, frameSprite, boyJump, playerGetJumpFrame(player), player.x, (int)player.y, TRANSPARENT);
-      }
-      endFrame();
+      if (gameUpdate(rightPressed, leftPressed)) state = STATE_MENU;
+      gameDraw();
       break;
 
     case STATE_SLEEP:
@@ -134,6 +93,7 @@ void loop() {
       beginFrame(TFT_BLACK);
       endFrame();
       break;
+
   }
 }
 

@@ -1,6 +1,7 @@
 #pragma once
 #include <Arduino.h>
 #include "sprite_functions.h"
+#include "graphics.h"
 
 struct Player {
     int x;

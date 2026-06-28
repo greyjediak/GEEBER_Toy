@@ -1,13 +1,14 @@
+// Handles player object and jump/draw functions
+
 #include "player.h"
 
-constexpr int GROUND_Y = 120;
-constexpr float GRAVITY = 0.55;
+constexpr float GRAVITY = 0.30;
 constexpr float JUMP_POWER = -9.5;
 constexpr unsigned long IDLE_FRAME_DELAY = 90;
 
 void playerInit(Player &p) {
   p.x = 88;
-  p.y = GROUND_Y;
+  p.y = GROUND_Y - PLAYER_H;
   p.velocityY = 0;
   p.onGround = true;
   p.idleFrame = 0;
@@ -27,7 +28,7 @@ void playerUpdate(Player &p, const SpriteSheet &idleSheet) {
     p.y += p.velocityY;
 
     if (p.y >= GROUND_Y) {
-      p.y = GROUND_Y;
+      p.y = GROUND_Y - PLAYER_H;
       p.velocityY = 0;
       p.onGround = true;
     }

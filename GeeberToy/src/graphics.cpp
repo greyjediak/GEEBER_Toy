@@ -1,3 +1,5 @@
+//Handles only screen init, off screen drawing, and text wrapping.
+
 #include "graphics.h"
 
 TFT_eSPI tft = TFT_eSPI();
@@ -6,7 +8,6 @@ TFT_eSprite frameSprite = TFT_eSprite(&tft);
 
 void graphicsInit() {
   tft.init();
-  tft.setRotation(0);
   tft.fillScreen(TFT_WHITE);
 
   screen.setColorDepth(16);

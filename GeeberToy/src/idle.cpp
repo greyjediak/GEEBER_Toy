@@ -1,4 +1,11 @@
+// Handles the idle state for the sprite. Idle state has several other randomly seeeded states.
+
 #include "idle.h"
+#include "graphics.h"
+#include "sprite_functions.h"
+#include "sprites.h"
+
+static SpriteSheet boyIdle = { boy_side_idle, 64, 64, 16, 1024 };
 
 static int idleFrame = 0;
 static unsigned long lastIdleTime = 0;

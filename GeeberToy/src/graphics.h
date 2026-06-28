@@ -6,6 +6,10 @@ constexpr int SCREEN_W = 240;
 constexpr int SCREEN_H = 240;
 constexpr uint16_t TRANSPARENT = 0xF81F;
 
+constexpr int GROUND_Y = 152;
+constexpr int PLAYER_H = 64;
+constexpr int PLAYER_W = 64;
+
 extern TFT_eSPI tft;
 extern TFT_eSprite screen;
 extern TFT_eSprite frameSprite;

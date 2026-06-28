@@ -1,3 +1,5 @@
+// Keeps the standard for sprite objects and handles drawing sprites from the sheets
+
 #pragma once
 
 #include <stdio.h>

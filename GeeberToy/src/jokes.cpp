@@ -14,7 +14,7 @@ const Joke jokes [] = {
         "Argon doesn't react."
     },
     {
-        "Two men walk into a bar. One says 'I'll have some H2O. The other man says, 'I'll have some H2O too",
+        "Two men walk into a bar. One says 'I'll have some H2O. The other man says, 'I'll have some H2O too.",
         "The second man dies."
     },
     {
@@ -34,12 +34,14 @@ const char* wisdom [] = {
     "Try turning it on and off again",
     "Have you considered making that bug a feature?",
     "Claude build me a million dollar app make no mistakes",
-    "Circuit doesn't work? Time to give up."
+    "Circuit doesn't work? Time to give up.",
     "There are two types of people in the world. Those who understand binary, and those who don't.",
     "Bad electrical engineers become good electrical conductors",
     "It's hard to explain puns to kleptomaniacs. They always take things literally.",
     "There are two types of people in the world. 1. Those who can extrapolate from incomplete data.",
-    "There's a fine line between a numerator and a denominator. Only a fraction of people will find this funny."
+    "There's a fine line between a numerator and a denominator. Only a fraction of people will find this funny.",
     "Just abuse KCL",
     
 };
+
+const int NUM_WISDOM = sizeof(wisdom) / sizeof(wisdom[0]);

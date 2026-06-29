@@ -2,8 +2,10 @@
 #include "graphics.h"
 #include "idle.h"
 #include "game.h"
+#include "jokes.h"
 #include "sprites.h"
 #include "sprite_functions.h"
+#include "idle.h"
 
 enum AppState {
   STATE_STARTUP,
@@ -14,10 +16,16 @@ enum AppState {
   STATE_JOKE,
 };
 
-static SpriteSheet boyWalk = { boy_speak, 64, 64, 4, 256 };
 
 AppState state = STATE_STARTUP;
 int menuChoice = 0;
+
+static SpriteSheet jokeSpeak = { boy_speak, 64, 64, 16, 1024 };
+
+static int           jokeIdx           = 0;
+static bool          jokePunchline     = false;
+static int           jokeFrame         = 0;
+static unsigned long lastJokeFrameTime = 0;
 
 struct DebouncedButton { int pin; bool lastStableState; bool lastReading; unsigned long lastChangeTime; };
 bool buttonPressed(DebouncedButton &btn);
@@ -37,6 +45,7 @@ void setup() {
   pinMode(D5, INPUT_PULLUP);
   pinMode(D6, INPUT_PULLUP);
 
+  randomSeed(esp_random());
   graphicsInit();
   gameInit();
 
@@ -67,7 +76,11 @@ void loop() {
       if (leftPressed)  menuChoice = (menuChoice + 1) % NUM_MENU_ITEMS;
       if (rightPressed) {
         switch (menuChoice) {
-          case 0: /* tell joke — not yet implemented */ break;
+          case 0:
+            jokeIdx       = random(NUM_JOKES);
+            jokePunchline = false;
+            state         = STATE_JOKE;
+            break;
           case 1: gameInit(); state = STATE_GAME;    break;
           case 2:             state = STATE_SLEEP;   break;
           case 3:             state = STATE_STARTUP; break;
@@ -92,6 +105,28 @@ void loop() {
       if (leftPressed || rightPressed) state = STATE_STARTUP;
       beginFrame(TFT_BLACK);
       endFrame();
+      break;
+
+    case STATE_JOKE:
+      if (millis() - lastJokeFrameTime >= 120) {
+        jokeFrame = (jokeFrame + 1) % jokeSpeak.frameCount;
+        lastJokeFrameTime = millis();
+      }
+      if (!jokePunchline) {
+        if (rightPressed) jokePunchline = true;
+        if (leftPressed)  state = STATE_MENU;
+        beginFrame(TFT_WHITE);
+        drawSpriteFrame(screen, frameSprite, jokeSpeak, jokeFrame, 88, 120, TRANSPARENT);
+        drawText(jokes[jokeIdx].setup, 10, 60, TFT_BLACK, 1, 220);
+        drawCenteredText("R: punchline", 200, TFT_BLUE, 1);
+        endFrame();
+      } else {
+        if (rightPressed || leftPressed) state = STATE_MENU;
+        beginFrame(TFT_WHITE);
+        drawText(jokes[jokeIdx].punchline, 10, 60, TFT_BLACK, 1, 220);
+        drawCenteredText("any: back", 200, TFT_BLUE, 1);
+        endFrame();
+      }
       break;
 
   }

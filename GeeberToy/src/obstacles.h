@@ -1,22 +1,35 @@
 #pragma once
-#include "player.h"
+#include "sprite_functions.h"
+#include "game.h"
 
-// One entry per column in the resistor sheet.
-// Add/rename these to match what you drew.
-enum ObstacleType { RES_SHORT, RES_MEDIUM, RES_TALL, RES_WIDE, OBS_TYPE_COUNT };
+enum ObstacleType { RES_SHORT, RES_MEDIUM, RES_TALL, RES_WIDE, CAP_1, CAP_2, CAP_3, CAP_4, OBS_TYPE_COUNT };
 
 struct Obstacle {
     int x;
-    int y;           // collision top  (groundY - visH, set by obstacleInit)
-    int w;           // collision width
-    int h;           // collision height
+    int y;
+    int frame;
+    int hitOffsetX;
+    int hitOffsetY;
+    int hitW;
+    int hitH;
     int speed;
     ObstacleType type;
 };
 
-void  obstaclesInit();
-void  obstacleSpawn(Obstacle &obs);
-void  obstacleUpdate(Obstacle &obs);
-void  obstacleDraw(Obstacle &obs);
-bool  obstacleCollides(const Obstacle &obs, const Player &p);
-float obstacleJumpPower(const Obstacle &obs); // required jump power to clear this obstacle
+struct ResistorVariant {
+    int hitW;
+    int hitH;
+    int speed;
+};
+
+struct CapVariant {
+    int hitW;
+    int hitH;
+    int speed;
+};
+
+void obstacleInit(Obstacle &obs);
+void obstacleReset(Obstacle &obs);
+void obstacleUpdate(Obstacle &obs);
+void obstacleDraw(Obstacle &obs, const SpriteSheet &resistorSheet);
+bool obstacleCollides(const Obstacle &obs, const Player &p);

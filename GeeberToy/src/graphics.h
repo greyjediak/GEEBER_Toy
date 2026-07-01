@@ -18,6 +18,12 @@ void graphicsInit();
 void beginFrame(uint16_t bgColor);
 void endFrame();
 
+void drawJumpBackground(); // for STATE GAME ONlye
+
+// Time handling 
+void setClock(int hour, int minute);
+void drawClock();
+
 // Text handlers
 int drawText(
     const String &text,

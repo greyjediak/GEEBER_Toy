@@ -44,6 +44,7 @@ bool gameUpdate(bool jumpPressed, bool exitPressed) {
 
 void gameDraw() {
     beginFrame(TFT_WHITE);
+    drawJumpBackground();
     screen.drawLine(0, GROUND_Y, SCREEN_W, GROUND_Y, TFT_GREEN);
 
     obstacleDraw(obstacle, resistorSheet);

@@ -70,14 +70,14 @@ void obstacleDraw(Obstacle &obs, const SpriteSheet &resistorSheet) {
     TRANSPARENT
   );
 
-  // Debug hitbox. Comment out once tuned.
-  screen.drawRect(
-    obs.x + obs.hitOffsetX,
-    obs.y + obs.hitOffsetY,
-    obs.hitW,
-    obs.hitH,
-    TFT_RED
-  );
+  // Debug hitbox (disabled). Re-enable to re-tune collision.
+  // screen.drawRect(
+  //   obs.x + obs.hitOffsetX,
+  //   obs.y + obs.hitOffsetY,
+  //   obs.hitW,
+  //   obs.hitH,
+  //   TFT_RED
+  // );
 }
 
 bool obstacleCollides(const Obstacle &obs, const Player &p) {
